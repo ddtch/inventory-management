@@ -57,6 +57,7 @@ bun install && bun run dev
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
 - `GET /api/restocking/recommendations` - Filters: budget (omit = full need), warehouse, category
 - `GET/POST /api/restocking/orders` - Submitted restocking orders, persisted to `server/data/restocking_orders.json`
+- `GET /api/tasks` - Header tasks modal; camelCase `dueDate` on purpose to match the Vue client
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.

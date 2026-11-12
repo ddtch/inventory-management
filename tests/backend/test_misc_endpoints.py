@@ -243,3 +243,28 @@ class TestRootEndpoint:
         assert "version" in data
         assert isinstance(data["message"], str)
         assert isinstance(data["version"], str)
+
+
+class TestTasksEndpoints:
+    """Test suite for the header tasks endpoint."""
+
+    def test_get_tasks(self, client):
+        """GET /api/tasks returns a list of tasks in the shape the TasksModal expects."""
+        response = client.get("/api/tasks")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) > 0
+
+        for task in data:
+            # camelCase dueDate is intentional: the Vue client reads task.dueDate directly
+            assert set(task.keys()) == {"id", "title", "priority", "dueDate", "status"}
+            assert task["priority"] in ["high", "medium", "low"]
+            assert task["status"] in ["pending", "completed"]
+
+    def test_tasks_have_unique_ids(self, client):
+        """Task ids must be unique so v-for keys and delete-by-id behave correctly."""
+        data = client.get("/api/tasks").json()
+        ids = [task["id"] for task in data]
+        assert len(ids) == len(set(ids))

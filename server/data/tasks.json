@@ -1,0 +1,23 @@
+[
+  {
+    "id": "api-1",
+    "title": "Reconcile Q4 restocking orders with supplier invoices",
+    "priority": "high",
+    "dueDate": "2025-11-14",
+    "status": "pending"
+  },
+  {
+    "id": "api-2",
+    "title": "Review low-stock alerts for the London warehouse",
+    "priority": "medium",
+    "dueDate": "2025-11-18",
+    "status": "pending"
+  },
+  {
+    "id": "api-3",
+    "title": "Publish October performance report",
+    "priority": "low",
+    "dueDate": "2025-11-05",
+    "status": "completed"
+  }
+]

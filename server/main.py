@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 import mock_data
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -115,6 +115,15 @@ class PurchaseOrder(BaseModel):
     status: str
     created_date: str
     notes: Optional[str] = None
+
+class Task(BaseModel):
+    # Field names are camelCase on purpose: the Vue TasksModal reads task.dueDate
+    # directly and merges these with the client-side mock tasks in useAuth.js.
+    id: str
+    title: str
+    priority: str          # high | medium | low
+    dueDate: str           # ISO date, YYYY-MM-DD
+    status: str            # pending | completed
 
 class CreatePurchaseOrderRequest(BaseModel):
     backlog_item_id: str
@@ -240,6 +249,11 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get user tasks displayed in the header tasks modal"""
+    return tasks
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(

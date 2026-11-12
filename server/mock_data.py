@@ -35,6 +35,9 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Load user tasks shown in the header TasksModal
+tasks = load_json_file('tasks.json')
+
 # Restocking orders are the only dataset written at runtime. The file may be
 # missing on a fresh checkout, so fall back to an empty list instead of failing.
 RESTOCKING_ORDERS_FILE = os.path.join(DATA_DIR, 'restocking_orders.json')

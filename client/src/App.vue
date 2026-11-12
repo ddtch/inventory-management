@@ -70,7 +70,7 @@
             <rect x="7.5" y="5" width="3" height="11" rx="0.5" stroke="currentColor" stroke-width="1.5"/>
             <rect x="12" y="2" width="3" height="14" rx="0.5" stroke="currentColor" stroke-width="1.5"/>
           </svg>
-          <span>Reports</span>
+          <span>{{ t('nav.reports') }}</span>
         </router-link>
       </nav>
 

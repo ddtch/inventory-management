@@ -268,3 +268,52 @@ class TestTasksEndpoints:
         data = client.get("/api/tasks").json()
         ids = [task["id"] for task in data]
         assert len(ids) == len(set(ids))
+
+
+class TestReportsEndpoints:
+    """Test suite for the reports endpoints and their filter support."""
+
+    def test_quarterly_reports_unfiltered(self, client):
+        """GET /api/reports/quarterly returns sorted quarters with computed metrics."""
+        response = client.get("/api/reports/quarterly")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) > 0
+        assert [q["quarter"] for q in data] == sorted(q["quarter"] for q in data)
+        for q in data:
+            assert {"quarter", "total_orders", "total_revenue", "avg_order_value", "fulfillment_rate"} <= set(q)
+            assert 0 <= q["fulfillment_rate"] <= 100
+
+    def test_quarterly_reports_month_filter(self, client):
+        """A single-month filter must collapse the result to that month's quarter only."""
+        data = client.get("/api/reports/quarterly?month=2025-02").json()
+        assert [q["quarter"] for q in data] == ["Q1-2025"]
+        # Order count must match what /api/orders returns for the same filter
+        orders = client.get("/api/orders?month=2025-02").json()
+        assert data[0]["total_orders"] == len(orders)
+
+    def test_quarterly_reports_warehouse_filter(self, client):
+        """Warehouse filter must reduce totals relative to the unfiltered report."""
+        all_q = client.get("/api/reports/quarterly").json()
+        sf_q = client.get("/api/reports/quarterly?warehouse=San Francisco").json()
+        assert sum(q["total_orders"] for q in sf_q) < sum(q["total_orders"] for q in all_q)
+        assert sum(q["total_orders"] for q in sf_q) == len(client.get("/api/orders?warehouse=San Francisco").json())
+
+    def test_monthly_trends_filters(self, client):
+        """Monthly trends honor month and status filters like /api/orders."""
+        unfiltered = client.get("/api/reports/monthly-trends").json()
+        assert len(unfiltered) == 12
+        assert [m["month"] for m in unfiltered] == sorted(m["month"] for m in unfiltered)
+
+        one_month = client.get("/api/reports/monthly-trends?month=2025-03").json()
+        assert [m["month"] for m in one_month] == ["2025-03"]
+
+        delivered = client.get("/api/reports/monthly-trends?status=Delivered").json()
+        delivered_orders = client.get("/api/orders?status=Delivered").json()
+        assert sum(m["order_count"] for m in delivered) == len(delivered_orders)
+
+    def test_reports_ignore_all_sentinel(self, client):
+        """Passing 'all' must behave exactly like omitting the filter."""
+        plain = client.get("/api/reports/quarterly").json()
+        with_all = client.get("/api/reports/quarterly?warehouse=all&category=all&status=all&month=all").json()
+        assert plain == with_all

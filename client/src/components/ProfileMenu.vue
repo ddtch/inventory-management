@@ -12,8 +12,8 @@
       <svg
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
-        width="16"
-        height="16"
+        width="14"
+        height="14"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -123,83 +123,95 @@ const handleLogout = () => {
 .profile-button {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-family: 'Atkinson Hyperlegible', sans-serif;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
+/* Copper avatar disc */
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: linear-gradient(135deg, #d06a2b 0%, #a84e1c 100%);
+  color: #fdf5ee;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.025em;
+  font-weight: 700;
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
 }
 
 .profile-name {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: #0f172a;
+  color: #c9c1b4;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
+  color: #7a7068;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
+  margin-left: auto;
 }
 
 .chevron-open {
   transform: rotate(180deg);
 }
 
+/* Dropdown opens upward */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  bottom: calc(100% + 0.5rem);
+  left: 0;
   right: 0;
-  min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 240px;
+  background: var(--surface, #f7f3ec);
+  border: 1px solid var(--hairline, #e2d8c8);
+  border-radius: 12px;
+  box-shadow: 0 -10px 28px rgba(28, 25, 20, 0.14), 0 2px 8px rgba(28, 25, 20, 0.06);
   z-index: 1000;
   overflow: hidden;
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: 0.875rem;
   display: flex;
-  gap: 0.875rem;
+  gap: 0.75rem;
   align-items: center;
-  background: #f8fafc;
+  background: var(--canvas, #efe8dc);
 }
 
 .avatar-large {
-  width: 48px;
-  height: 48px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: linear-gradient(135deg, #d06a2b 0%, #a84e1c 100%);
+  color: #fdf5ee;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.025em;
+  font-size: 0.875rem;
+  letter-spacing: 0.03em;
   flex-shrink: 0;
 }
 
@@ -209,15 +221,15 @@ const handleLogout = () => {
 }
 
 .user-name {
-  font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  font-weight: 700;
+  color: var(--ink, #1c1914);
+  font-size: 0.875rem;
+  margin-bottom: 0.2rem;
 }
 
 .user-email {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 0.75rem;
+  color: var(--muted, #6f6558);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,57 +237,57 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--hairline, #e2d8c8);
+  margin: 0.25rem 0;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.625rem;
+  padding: 0.625rem 0.875rem;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
+  transition: background 0.12s ease;
+  font-family: 'Atkinson Hyperlegible', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--ink, #1c1914);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--canvas, #efe8dc);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--muted, #6f6558);
   flex-shrink: 0;
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: #a52020;
 }
 
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: #a52020;
 }
 
 .dropdown-item.logout:hover {
-  background: #fef2f2;
+  background: #f5e8e8;
 }
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-  min-width: 20px;
+  background: var(--copper, #d06a2b);
+  color: #fdf5ee;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 10px;
+  min-width: 18px;
   text-align: center;
 }
 </style>

@@ -18,6 +18,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 - Demand forecasting with trend analysis
 - Backlog monitoring
 - Spending analytics
+- Restocking tab: budget slider, urgency-ranked recommendations from demand forecasts, one-click order submission with supplier lead times
 
 ## Quick Start
 
@@ -42,8 +43,8 @@ uv run python main.py
 Frontend:
 ```bash
 cd client
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ## API Endpoints
@@ -56,6 +57,9 @@ All endpoints support optional filtering via query params: `warehouse`, `categor
 - `GET /api/backlog` - Backlog items
 - `GET /api/dashboard/summary` - Summary statistics
 - `GET /api/spending/*` - Spending data
+- `GET /api/restocking/recommendations?budget=` - Budget-constrained restock recommendations (omit budget for full need)
+- `GET /api/restocking/orders` - Submitted restocking orders
+- `POST /api/restocking/orders` - Submit a restocking order (persisted to `server/data/restocking_orders.json`)
 
 ## Demo Data
 
@@ -68,11 +72,13 @@ Mock data includes:
 
 Data files: `server/data/*.json`
 
+`server/data/restocking_orders.json` is the one file written at runtime (orders placed from the Restocking tab). Reset it to `[]` to clear demo orders.
+
 ## Production Build
 
 ```bash
 cd client
-npm run build  # Output: client/dist/
+bun run build  # Output: client/dist/
 ```
 
 ## Platform Notes
@@ -91,8 +97,8 @@ uv run python main.py
 Frontend:
 ```bash
 cd client
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 To stop the servers, press Ctrl+C in each terminal window.

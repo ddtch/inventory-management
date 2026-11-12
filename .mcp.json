@@ -2,18 +2,16 @@
   "mcpServers": {
     "playwright": {
       "type": "stdio",
-      "command": "npx",
+      "command": "bunx",
       "args": [
-        "-y",
         "@playwright/mcp@0.0.37"
       ],
       "env": {}
     },
     "github": {
       "type": "stdio",
-      "command": "npx",
+      "command": "bunx",
       "args": [
-        "-y",
         "@modelcontextprotocol/server-github"
       ],
       "env": {

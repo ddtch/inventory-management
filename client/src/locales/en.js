@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +108,9 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersHint: 'Restocking orders placed from the Restocking tab. Not affected by the filters above.',
+    noSubmittedOrders: 'No restocking orders submitted yet',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +130,9 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submitted: 'Submitted',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -189,6 +196,41 @@ export default {
   },
 
   // Filters
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the items demand forecasts say you will run short on',
+    budget: 'Available Budget',
+    fullNeed: 'Full restock would cost {amount}',
+    plannedSpend: 'Planned Spend',
+    remaining: 'Remaining Budget',
+    itemsFunded: 'Items Funded',
+    recommendations: 'Recommended Restocking',
+    selectAll: 'Select all',
+    partial: 'partial',
+    unfunded: '{count} more items need restocking but do not fit this budget',
+    sufficientStock: '{count} forecasted items already have sufficient stock',
+    noRecommendations: 'Nothing to restock at this budget',
+    placeOrder: 'Place Order ({count} items, {total})',
+    placing: 'Placing order...',
+    orderPlaced: 'Order {orderNumber} submitted',
+    orderPlacedDetail: '{count} items for {total}. Lead time {days} days, expected delivery {date}.',
+    orderFailed: 'Failed to place order',
+    viewOrders: 'View in Orders',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand / Reorder',
+      forecast: 'Forecast (30d)',
+      quantity: 'Qty to Order',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      priority: 'Priority'
+    }
+  },
+
   filters: {
     timePeriod: 'Time Period',
     location: 'Location',
@@ -204,6 +246,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -312,6 +355,64 @@ export default {
   },
 
   // Common
+  // Reports page
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadError: 'Failed to load reports',
+    noData: 'No orders match the selected filters',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthlyTrend: {
+      title: 'Monthly Revenue Trend'
+    },
+    monthOverMonth: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate',
+      notAvailable: 'N/A'
+    },
+    summary: {
+      totalRevenue: 'Total Revenue',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
+  // Backlog page
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    loadError: 'Failed to load backlog',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    itemsTitle: 'Backlog Items',
+    empty: 'No backlog items - all orders can be fulfilled',
+    orderId: 'Order ID',
+    sku: 'SKU',
+    itemName: 'Item Name',
+    quantityNeeded: 'Quantity Needed',
+    quantityAvailable: 'Quantity Available',
+    shortage: 'Shortage',
+    daysDelayed: 'Days Delayed',
+    priority: 'Priority',
+    unitsShort: '{count} units short'
+  },
+
   common: {
     loading: 'Loading...',
     error: 'Error',
@@ -323,6 +424,7 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    days: '{count} days'
   }
 }

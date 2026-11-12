@@ -65,23 +65,25 @@ class TestDemandEndpoints:
                 assert percent_change < 2.0, \
                     f"Item {item['item_name']} has {percent_change:.2f}% change, expected < 2%"
 
-    def test_demand_forecast_has_new_items(self, client):
-        """Test that new demand forecast items exist."""
-        response = client.get("/api/demand")
-        data = response.json()
+    def test_demand_forecast_covers_inventory_skus(self, client):
+        """Test that demand forecasts reference real inventory SKUs."""
+        forecasts = client.get("/api/demand").json()
+        inventory_skus = {item["sku"] for item in client.get("/api/inventory").json()}
 
-        # Check for the new items we added
-        skus = [item["item_sku"] for item in data]
+        skus = [item["item_sku"] for item in forecasts]
+        assert "PSU-501" in skus, "Missing 5V 10A Switching Power Supply"
+        assert "HMD-202" in skus, "Missing Humidity Sensor Module"
 
-        # Should have Temperature Sensor Module and Logic Controller Board
-        assert "SNR-420" in skus, "Missing Temperature Sensor Module"
-        assert "CTL-330" in skus, "Missing Logic Controller Board"
+        # Every forecast must map onto an inventory item so restocking can price it
+        for item in forecasts:
+            assert item["item_sku"] in inventory_skus, \
+                f"Forecast SKU {item['item_sku']} does not exist in inventory"
 
-        # Verify they are marked as stable
-        for item in data:
-            if item["item_sku"] in ["SNR-420", "CTL-330"]:
+        # Verify the two reference items are marked as stable
+        for item in forecasts:
+            if item["item_sku"] in ["PSU-501", "HMD-202"]:
                 assert item["trend"].lower() == "stable", \
-                    f"New item {item['item_name']} should have stable trend"
+                    f"Item {item['item_name']} should have stable trend"
 
 
 class TestBacklogEndpoints:
@@ -241,3 +243,77 @@ class TestRootEndpoint:
         assert "version" in data
         assert isinstance(data["message"], str)
         assert isinstance(data["version"], str)
+
+
+class TestTasksEndpoints:
+    """Test suite for the header tasks endpoint."""
+
+    def test_get_tasks(self, client):
+        """GET /api/tasks returns a list of tasks in the shape the TasksModal expects."""
+        response = client.get("/api/tasks")
+        assert response.status_code == 200
+
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) > 0
+
+        for task in data:
+            # camelCase dueDate is intentional: the Vue client reads task.dueDate directly
+            assert set(task.keys()) == {"id", "title", "priority", "dueDate", "status"}
+            assert task["priority"] in ["high", "medium", "low"]
+            assert task["status"] in ["pending", "completed"]
+
+    def test_tasks_have_unique_ids(self, client):
+        """Task ids must be unique so v-for keys and delete-by-id behave correctly."""
+        data = client.get("/api/tasks").json()
+        ids = [task["id"] for task in data]
+        assert len(ids) == len(set(ids))
+
+
+class TestReportsEndpoints:
+    """Test suite for the reports endpoints and their filter support."""
+
+    def test_quarterly_reports_unfiltered(self, client):
+        """GET /api/reports/quarterly returns sorted quarters with computed metrics."""
+        response = client.get("/api/reports/quarterly")
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) > 0
+        assert [q["quarter"] for q in data] == sorted(q["quarter"] for q in data)
+        for q in data:
+            assert {"quarter", "total_orders", "total_revenue", "avg_order_value", "fulfillment_rate"} <= set(q)
+            assert 0 <= q["fulfillment_rate"] <= 100
+
+    def test_quarterly_reports_month_filter(self, client):
+        """A single-month filter must collapse the result to that month's quarter only."""
+        data = client.get("/api/reports/quarterly?month=2025-02").json()
+        assert [q["quarter"] for q in data] == ["Q1-2025"]
+        # Order count must match what /api/orders returns for the same filter
+        orders = client.get("/api/orders?month=2025-02").json()
+        assert data[0]["total_orders"] == len(orders)
+
+    def test_quarterly_reports_warehouse_filter(self, client):
+        """Warehouse filter must reduce totals relative to the unfiltered report."""
+        all_q = client.get("/api/reports/quarterly").json()
+        sf_q = client.get("/api/reports/quarterly?warehouse=San Francisco").json()
+        assert sum(q["total_orders"] for q in sf_q) < sum(q["total_orders"] for q in all_q)
+        assert sum(q["total_orders"] for q in sf_q) == len(client.get("/api/orders?warehouse=San Francisco").json())
+
+    def test_monthly_trends_filters(self, client):
+        """Monthly trends honor month and status filters like /api/orders."""
+        unfiltered = client.get("/api/reports/monthly-trends").json()
+        assert len(unfiltered) == 12
+        assert [m["month"] for m in unfiltered] == sorted(m["month"] for m in unfiltered)
+
+        one_month = client.get("/api/reports/monthly-trends?month=2025-03").json()
+        assert [m["month"] for m in one_month] == ["2025-03"]
+
+        delivered = client.get("/api/reports/monthly-trends?status=Delivered").json()
+        delivered_orders = client.get("/api/orders?status=Delivered").json()
+        assert sum(m["order_count"] for m in delivered) == len(delivered_orders)
+
+    def test_reports_ignore_all_sentinel(self, client):
+        """Passing 'all' must behave exactly like omitting the filter."""
+        plain = client.get("/api/reports/quarterly").json()
+        with_all = client.get("/api/reports/quarterly?warehouse=all&category=all&status=all&month=all").json()
+        assert plain == with_all

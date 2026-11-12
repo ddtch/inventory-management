@@ -736,7 +736,7 @@ export default {
 
 .header-meta {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--muted, #6f6558);
 }
 
 .kpi-section {
@@ -744,11 +744,11 @@ export default {
 }
 
 .section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted, #6f6558);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
   margin-bottom: 1rem;
 }
 
@@ -759,9 +759,9 @@ export default {
 }
 
 .kpi-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  background: var(--surface, #f7f3ec);
+  border: 1px solid var(--hairline, #e2d8c8);
+  border-radius: 14px;
   padding: 1rem;
 }
 
@@ -771,43 +771,44 @@ export default {
 
 .kpi-label {
   font-size: 0.813rem;
-  font-weight: 600;
-  color: #64748b;
+  font-weight: 700;
+  color: var(--muted, #6f6558);
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
 }
 
 .kpi-value {
+  font-family: 'Fraunces', serif;
   font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 600;
+  color: var(--ink, #1c1914);
   margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
 }
 
 .kpi-goal {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--muted, #6f6558);
   margin-bottom: 0.75rem;
 }
 
 .kpi-progress-bar {
   width: 100%;
-  height: 6px;
-  background: #f1f5f9;
+  height: 5px;
+  background: var(--hairline, #e2d8c8);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .kpi-progress {
   height: 100%;
-  background: #3b82f6;
+  background: var(--copper, #d06a2b);
   border-radius: 3px;
   transition: width 0.6s ease;
 }
 
 .kpi-progress.success {
-  background: #10b981;
+  background: #2a7a4e;
 }
 
 .charts-grid {
@@ -928,17 +929,18 @@ export default {
 
 .health-metric-label {
   font-size: 0.688rem;
-  color: #64748b;
-  font-weight: 600;
+  color: var(--muted, #6f6558);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
 .health-metric-value {
+  font-family: 'Fraunces', serif;
   font-size: 1.75rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-weight: 600;
+  color: var(--ink, #1c1914);
+  letter-spacing: -0.02em;
 }
 
 .metric-good {
@@ -971,14 +973,14 @@ export default {
   min-width: 120px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--muted, #6f6558);
   flex-shrink: 0;
 }
 
 .h-bar-container {
   flex: 1;
   height: 32px;
-  background: #f8fafc;
+  background: var(--canvas, #efe8dc);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -1077,7 +1079,7 @@ export default {
 .no-data {
   padding: 2rem;
   text-align: center;
-  color: #94a3b8;
+  color: var(--muted, #6f6558);
   font-size: 0.875rem;
 }
 
@@ -1109,7 +1111,7 @@ export default {
 }
 
 .clickable-row:hover {
-  background: #eff6ff !important;
+  background: var(--canvas, #efe8dc) !important;
 }
 
 /* Tasks Card Styles */
@@ -1248,24 +1250,24 @@ export default {
 }
 
 .po-button.create {
-  background: #3b82f6;
-  color: white;
+  background: var(--copper, #d06a2b);
+  color: #fdf5ee;
 }
 
 .po-button.create:hover {
-  background: #2563eb;
+  background: #b8591f;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 6px rgba(208, 106, 43, 0.35);
 }
 
 .po-button.view {
-  background: #64748b;
-  color: white;
+  background: var(--muted, #6f6558);
+  color: #fdf5ee;
 }
 
 .po-button.view:hover {
-  background: #475569;
+  background: #5a5048;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
+  box-shadow: 0 2px 6px rgba(111, 101, 88, 0.3);
 }
 </style>

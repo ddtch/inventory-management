@@ -142,3 +142,17 @@ class TestInventoryEndpoints:
         # All items should be Power Supplies
         for item in data:
             assert item["category"].lower() == "power supplies"
+
+
+class TestInventoryLeadTime:
+    """Test suite for supplier lead time data."""
+
+    def test_inventory_items_have_lead_time(self, client):
+        """Test that every inventory item has a positive lead_time_days."""
+        response = client.get("/api/inventory")
+        assert response.status_code == 200
+
+        for item in response.json():
+            assert "lead_time_days" in item
+            assert isinstance(item["lead_time_days"], int)
+            assert item["lead_time_days"] > 0, f"Item {item['sku']} has no lead time"

@@ -321,23 +321,28 @@ export default {
   padding: 0;
 }
 
+/* Warm retint — matches global card surface */
 .card {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface, #f7f3ec);
+  border-radius: 14px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--hairline, #e2d8c8);
+  box-shadow: none;
 }
 
 .card-header {
   margin-bottom: 1.5rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid var(--hairline, #e2d8c8);
 }
 
 .card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--ink, #1c1914);
   margin: 0;
+  letter-spacing: -0.015em;
 }
 
 .reports-table {
@@ -346,21 +351,26 @@ export default {
 }
 
 .reports-table th {
-  background: #f8fafc;
-  padding: 0.75rem;
+  background: var(--canvas, #efe8dc);
+  padding: 0.625rem 0.75rem;
   text-align: left;
-  font-weight: 600;
-  color: #64748b;
-  border-bottom: 2px solid #e2e8f0;
+  font-weight: 700;
+  color: var(--muted, #6f6558);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  border-bottom: 1px solid var(--hairline, #e2d8c8);
 }
 
 .reports-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--hairline, #e2d8c8);
+  color: var(--ink, #1c1914);
+  font-size: 0.875rem;
 }
 
 .reports-table tr:hover {
-  background: #f8fafc;
+  background: var(--canvas, #efe8dc);
 }
 
 .chart-container {
@@ -391,28 +401,29 @@ export default {
   width: 100%;
 }
 
+/* Copper bar gradient */
 .bar {
   width: 100%;
-  background: linear-gradient(to top, #3b82f6, #60a5fa);
+  background: linear-gradient(to top, var(--copper, #d06a2b), #e8895a);
   border-radius: 4px 4px 0 0;
   transition: all 0.3s;
   cursor: pointer;
 }
 
 .bar:hover {
-  background: linear-gradient(to top, #2563eb, #3b82f6);
+  background: linear-gradient(to top, #b8591f, var(--copper, #d06a2b));
 }
 
 .bar-label {
-  margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--muted, #6f6558);
   text-align: center;
   transform: rotate(-45deg);
   white-space: nowrap;
   margin-top: 1.5rem;
 }
 
+/* Stats grid — warm retint */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -421,68 +432,67 @@ export default {
 }
 
 .stat-card {
-  background: white;
-  border-radius: 12px;
+  background: var(--surface, #f7f3ec);
+  border-radius: 14px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #3b82f6;
+  border: 1px solid var(--hairline, #e2d8c8);
+  border-left: 4px solid var(--copper, #d06a2b);
+  box-shadow: none;
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 0.8125rem;
+  color: var(--muted, #6f6558);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
+  font-family: 'Fraunces', serif;
   font-size: 1.875rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 600;
+  color: var(--ink, #1c1914);
+  letter-spacing: -0.02em;
 }
 
+/* Keep badge names matching global — these are overrides for pill shape */
 .badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badge.warning {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge.danger {
-  background: #fee2e2;
-  color: #991b1b;
-}
+.badge.success { background: #cee8d8; color: #1a5934; }
+.badge.warning  { background: #f2dfc0; color: #733b0e; }
+.badge.danger   { background: #f2d0d0; color: #851c1c; }
 
 .positive-change {
-  color: #16a34a;
-  font-weight: 600;
+  color: #276640;
+  font-weight: 700;
 }
 
 .negative-change {
-  color: #dc2626;
-  font-weight: 600;
+  color: #a52020;
+  font-weight: 700;
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--muted, #6f6558);
 }
 
 .error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #f9eaea;
+  border: 1px solid #e0b0b0;
+  color: #851c1c;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   margin: 1rem 0;
 }
 </style>

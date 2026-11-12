@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,9 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersHint: 'Restocking orders placed from the Restocking tab. Not affected by the filters above.',
+    noSubmittedOrders: 'No restocking orders submitted yet',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +129,9 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submitted: 'Submitted',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -189,6 +195,41 @@ export default {
   },
 
   // Filters
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the items demand forecasts say you will run short on',
+    budget: 'Available Budget',
+    fullNeed: 'Full restock would cost {amount}',
+    plannedSpend: 'Planned Spend',
+    remaining: 'Remaining Budget',
+    itemsFunded: 'Items Funded',
+    recommendations: 'Recommended Restocking',
+    selectAll: 'Select all',
+    partial: 'partial',
+    unfunded: '{count} more items need restocking but do not fit this budget',
+    sufficientStock: '{count} forecasted items already have sufficient stock',
+    noRecommendations: 'Nothing to restock at this budget',
+    placeOrder: 'Place Order ({count} items, {total})',
+    placing: 'Placing order...',
+    orderPlaced: 'Order {orderNumber} submitted',
+    orderPlacedDetail: '{count} items for {total}. Lead time {days} days, expected delivery {date}.',
+    orderFailed: 'Failed to place order',
+    viewOrders: 'View in Orders',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand / Reorder',
+      forecast: 'Forecast (30d)',
+      quantity: 'Qty to Order',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      priority: 'Priority'
+    }
+  },
+
   filters: {
     timePeriod: 'Time Period',
     location: 'Location',
@@ -204,6 +245,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -323,6 +365,7 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    days: '{count} days'
   }
 }

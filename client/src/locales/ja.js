@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,9 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み発注',
+    submittedOrdersHint: '補充発注タブから送信された発注です。上のフィルターの影響を受けません。',
+    noSubmittedOrders: '送信済みの補充発注はまだありません',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +129,9 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      submitted: '送信日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -189,6 +195,41 @@ export default {
   },
 
   // Filters
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、需要予測で不足が見込まれる品目を発注します',
+    budget: '利用可能予算',
+    fullNeed: '全品目の補充には{amount}が必要です',
+    plannedSpend: '発注予定額',
+    remaining: '残予算',
+    itemsFunded: '発注対象品目',
+    recommendations: '推奨補充品目',
+    selectAll: 'すべて選択',
+    partial: '一部',
+    unfunded: 'さらに{count}品目が補充を必要としていますが、この予算には収まりません',
+    sufficientStock: '予測対象のうち{count}品目はすでに十分な在庫があります',
+    noRecommendations: 'この予算では補充できる品目がありません',
+    placeOrder: '発注する（{count}品目、{total}）',
+    placing: '発注中...',
+    orderPlaced: '発注 {orderNumber} を送信しました',
+    orderPlacedDetail: '{count}品目、合計{total}。リードタイム{days}日、配達予定日 {date}。',
+    orderFailed: '発注に失敗しました',
+    viewOrders: '注文タブで確認',
+    table: {
+      sku: 'SKU',
+      item: '品目',
+      warehouse: '倉庫',
+      onHand: '在庫 / 発注点',
+      forecast: '予測（30日）',
+      quantity: '発注数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      priority: '優先度'
+    }
+  },
+
   filters: {
     timePeriod: '期間',
     location: '場所',
@@ -204,6 +245,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -323,7 +365,8 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件'
+    items: '件',
+    days: '{count}日'
   },
 
   // Product Names

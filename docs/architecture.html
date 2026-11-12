@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Inventory Management — архитектура системы</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --blue: #2563eb;
+    --blue-soft: #eff6ff;
+    --green: #16a34a;
+    --green-soft: #f0fdf4;
+    --amber: #d97706;
+    --amber-soft: #fffbeb;
+    --red: #dc2626;
+    --red-soft: #fef2f2;
+    --slate-soft: #f1f5f9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+  }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+  code { background: var(--slate-soft); padding: 1px 6px; border-radius: 4px; }
+  pre { background: var(--ink); color: #e2e8f0; padding: 14px 18px; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 40px 24px 36px;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  header .wrap { padding: 0; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  header h1 { margin: 0 0 6px; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+  header p { margin: 0; color: #94a3b8; font-size: 15px; max-width: 760px; }
+  .meta { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 22px; font-size: 13px; color: #cbd5e1; }
+  .meta span b { color: #fff; font-weight: 600; }
+
+  nav.toc { border-bottom: 1px solid var(--line); background: var(--card); position: sticky; top: 0; z-index: 2; }
+  nav.toc .wrap { display: flex; gap: 4px; flex-wrap: wrap; padding: 8px 24px; }
+  nav.toc a { color: var(--muted); text-decoration: none; font-size: 13px; padding: 6px 10px; border-radius: 6px; }
+  nav.toc a:hover { background: var(--slate-soft); color: var(--ink); }
+
+  section { padding: 44px 0 8px; }
+  h2 { font-size: 22px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .lead { color: var(--muted); margin: 0 0 22px; font-size: 15px; }
+  h3 { font-size: 15px; font-weight: 600; margin: 24px 0 10px; color: var(--ink); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+  .grid { display: grid; gap: 16px; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 860px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+  .card h4 { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+  .card .sub { color: var(--muted); font-size: 12.5px; margin-bottom: 12px; }
+  .card ul { margin: 0; padding-left: 18px; font-size: 13.5px; }
+  .card li { margin: 4px 0; }
+  .card li span.note { color: var(--muted); }
+
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; }
+  .tag.blue { background: var(--blue-soft); color: var(--blue); }
+  .tag.green { background: var(--green-soft); color: var(--green); }
+  .tag.amber { background: var(--amber-soft); color: var(--amber); }
+  .tag.red { background: var(--red-soft); color: var(--red); }
+  .tag.slate { background: var(--slate-soft); color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--slate-soft); font-weight: 600; font-size: 12.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; }
+  tr:last-child td { border-bottom: none; }
+  td code { white-space: nowrap; }
+
+  .diagram { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .caption { color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+  /* SVG semantic classes */
+  .box { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; rx: 8; }
+  .box.fe { stroke: var(--blue); }
+  .box.be { stroke: var(--green); }
+  .box.data { stroke: var(--amber); }
+  .box.ext { stroke: #94a3b8; stroke-dasharray: 4 3; }
+  .zone { fill: var(--slate-soft); stroke: var(--line); stroke-width: 1; rx: 12; }
+  .zone-label { font-size: 11px; font-weight: 600; fill: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .t { font-size: 13px; font-weight: 600; fill: var(--ink); }
+  .s { font-size: 11px; fill: var(--muted); }
+  .m { font-size: 10.5px; fill: var(--ink); font-family: ui-monospace, Menlo, monospace; }
+  .edge { stroke: #475569; stroke-width: 1.4; fill: none; marker-end: url(#arrow); }
+  .edge.dash { stroke-dasharray: 5 4; stroke: #94a3b8; }
+  .elabel { font-size: 10.5px; fill: #475569; }
+  .elabel-bg { fill: #fff; }
+
+  .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .step:last-child { border-bottom: none; }
+  .step .n { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+  .step .n.be { background: var(--green); }
+  .step .n.fe { background: var(--blue); }
+  .step p { margin: 0; font-size: 13.5px; }
+  .step p b { font-weight: 600; }
+  .step .where { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  .callout { border-left: 3px solid var(--amber); background: var(--amber-soft); padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 13.5px; margin: 14px 0; }
+  .callout.red { border-color: var(--red); background: var(--red-soft); }
+  .callout b { font-weight: 600; }
+
+  .tree { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; line-height: 1.65; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; white-space: pre; overflow-x: auto; color: var(--ink); }
+  .tree .c { color: var(--muted); }
+
+  footer { color: var(--muted); font-size: 12.5px; padding: 36px 0 48px; border-top: 1px solid var(--line); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>Factory Inventory Management System</h1>
+    <p>Обзор архитектуры демо-приложения для управления складскими запасами: как устроены фронтенд и бэкенд, из чего собран стек и как данные проходят от JSON-файлов до графиков на экране.</p>
+    <div class="meta">
+      <span><b>Фронтенд</b> Vue 3 + Vite · порт 3000</span>
+      <span><b>Бэкенд</b> Python FastAPI · порт 8001</span>
+      <span><b>Хранилище</b> JSON-файлы в памяти, без БД</span>
+      <span><b>Код</b> ~8 900 строк (client + server)</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">Обзор</a>
+    <a href="#architecture">Архитектура</a>
+    <a href="#stack">Технологический стек</a>
+    <a href="#dataflow">Потоки данных</a>
+    <a href="#api">API и маршруты</a>
+    <a href="#structure">Структура проекта</a>
+    <a href="#notes">Замечания</a>
+    <a href="#run">Запуск</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ===================== OVERVIEW ===================== -->
+<section id="overview">
+  <h2>Обзор</h2>
+  <p class="lead">Классическое двухуровневое SPA-приложение: браузерный клиент на Vue общается с REST API на FastAPI по HTTP. Серверной базы данных нет: при старте сервер читает JSON-файлы в списки Python и фильтрует их в памяти на каждый запрос.</p>
+
+  <div class="grid grid-3">
+    <div class="card">
+      <span class="tag blue">Клиент</span>
+      <h4 style="margin-top:8px">Vue 3 SPA</h4>
+      <div class="sub">client/</div>
+      <ul>
+        <li>7 экранов (views): Dashboard, Inventory, Orders, Spending, Demand, Restocking, Reports</li>
+        <li>9 переиспользуемых компонентов: фильтр-бар, модальные окна, меню профиля, переключатель языка</li>
+        <li>3 composable: фильтры, i18n (en/ja), мок-авторизация</li>
+        <li>Графики нарисованы вручную на SVG и CSS Grid, без chart-библиотек</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag green">Сервер</span>
+      <h4 style="margin-top:8px">FastAPI REST API</h4>
+      <div class="sub">server/main.py · 309 строк</div>
+      <ul>
+        <li>17 эндпоинтов, один POST (restocking)</li>
+        <li>Pydantic-модели как <code>response_model</code> для валидации ответов</li>
+        <li>Две утилиты фильтрации: <code>apply_filters</code> и <code>filter_by_month</code></li>
+        <li>CORS открыт для всех источников (демо-режим)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag amber">Данные</span>
+      <h4 style="margin-top:8px">JSON в памяти</h4>
+      <div class="sub">server/data/*.json · server/mock_data.py</div>
+      <ul>
+        <li>7 файлов: inventory, orders, demand_forecasts, backlog_items, spending, transactions, purchase_orders</li>
+        <li>Загружаются один раз при импорте модуля</li>
+        <li>Период данных: январь–сентябрь 2025</li>
+        <li>Изменения не сохраняются, перезапуск перечитывает файлы</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ARCHITECTURE ===================== -->
+<section id="architecture">
+  <h2>Архитектура системы</h2>
+  <p class="lead">Компоненты и связи между ними. Сплошные стрелки: синхронные HTTP-запросы и импорты модулей. Пунктир: эндпоинты, которые вызывает клиент, но которых нет на сервере.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1080 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема архитектуры">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- Zones -->
+      <rect class="zone" x="20" y="20" width="400" height="520"/>
+      <text class="zone-label" x="36" y="44">БРАУЗЕР · VUE SPA · localhost:3000</text>
+
+      <rect class="zone" x="470" y="20" width="590" height="520"/>
+      <text class="zone-label" x="486" y="44">СЕРВЕР · FASTAPI · localhost:8001</text>
+
+      <!-- Client: App shell -->
+      <rect class="box fe" x="40" y="64" width="360" height="74"/>
+      <text class="t" x="56" y="88">App.vue</text>
+      <text class="s" x="56" y="106">Шапка, навигация, &lt;FilterBar/&gt;, &lt;router-view/&gt;,</text>
+      <text class="s" x="56" y="121">модальные окна профиля и задач</text>
+
+      <!-- Client: Router -->
+      <rect class="box fe" x="40" y="160" width="170" height="56"/>
+      <text class="t" x="56" y="182">Vue Router</text>
+      <text class="s" x="56" y="199">main.js · 7 маршрутов</text>
+
+      <!-- Client: Views -->
+      <rect class="box fe" x="230" y="160" width="170" height="56"/>
+      <text class="t" x="246" y="182">Views (7)</text>
+      <text class="s" x="246" y="199">Dashboard, Orders, …</text>
+
+      <!-- Client: Composables -->
+      <rect class="box fe" x="40" y="246" width="170" height="92"/>
+      <text class="t" x="56" y="268">Composables</text>
+      <text class="m" x="56" y="287">useFilters()</text>
+      <text class="m" x="56" y="303">useI18n()</text>
+      <text class="m" x="56" y="319">useAuth()</text>
+
+      <!-- Client: Components -->
+      <rect class="box fe" x="230" y="246" width="170" height="92"/>
+      <text class="t" x="246" y="268">Components (9)</text>
+      <text class="s" x="246" y="286">FilterBar, *DetailModal,</text>
+      <text class="s" x="246" y="301">ProfileMenu, TasksModal,</text>
+      <text class="s" x="246" y="316">LanguageSwitcher</text>
+
+      <!-- Client: api.js -->
+      <rect class="box fe" x="40" y="370" width="360" height="62"/>
+      <text class="t" x="56" y="393">api.js · axios</text>
+      <text class="s" x="56" y="411">Строит query-параметры из фильтров, базовый URL http://localhost:8001/api</text>
+
+      <!-- Client: locales -->
+      <rect class="box fe" x="40" y="460" width="360" height="56"/>
+      <text class="t" x="56" y="482">locales/en.js · ja.js · utils/currency.js</text>
+      <text class="s" x="56" y="500">Переводы и форматирование валют (USD / JPY)</text>
+
+      <!-- Server: main.py -->
+      <rect class="box be" x="490" y="64" width="550" height="118"/>
+      <text class="t" x="506" y="88">main.py · FastAPI app</text>
+      <text class="s" x="506" y="106">CORSMiddleware (allow_origins=["*"]) · uvicorn :8001</text>
+      <text class="m" x="506" y="128">GET /api/inventory  /api/orders  /api/dashboard/summary</text>
+      <text class="m" x="506" y="144">GET /api/demand  /api/backlog  /api/spending/*  /api/reports/*</text>
+      <text class="s" x="506" y="166">Один POST: /api/restocking/orders</text>
+
+      <!-- Server: filters -->
+      <rect class="box be" x="490" y="210" width="260" height="92"/>
+      <text class="t" x="506" y="232">Фильтрация в памяти</text>
+      <text class="m" x="506" y="252">apply_filters(warehouse,</text>
+      <text class="m" x="506" y="266">    category, status)</text>
+      <text class="m" x="506" y="284">filter_by_month(month | Qn-2025)</text>
+
+      <!-- Server: Pydantic -->
+      <rect class="box be" x="780" y="210" width="260" height="92"/>
+      <text class="t" x="796" y="232">Pydantic-модели</text>
+      <text class="s" x="796" y="250">InventoryItem, Order, DemandForecast,</text>
+      <text class="s" x="796" y="265">BacklogItem, PurchaseOrder</text>
+      <text class="s" x="796" y="284">Валидация ответа через response_model</text>
+
+      <!-- Server: mock_data -->
+      <rect class="box data" x="490" y="334" width="550" height="62"/>
+      <text class="t" x="506" y="357">mock_data.py</text>
+      <text class="s" x="506" y="375">Читает все JSON при импорте модуля и держит их как списки Python на время работы процесса</text>
+
+      <!-- Server: JSON files -->
+      <rect class="box data" x="490" y="428" width="550" height="92"/>
+      <text class="t" x="506" y="451">server/data/*.json</text>
+      <text class="m" x="506" y="471">inventory.json  orders.json (151 KB)  demand_forecasts.json</text>
+      <text class="m" x="506" y="487">backlog_items.json  spending.json  transactions.json</text>
+      <text class="m" x="506" y="503">purchase_orders.json (пустой)</text>
+
+      <!-- Edges: client internal -->
+      <path class="edge" d="M 125 138 L 125 160"/>
+      <path class="edge" d="M 210 188 L 230 188"/>
+      <path class="edge" d="M 315 216 L 315 246"/>
+      <path class="edge" d="M 210 292 L 230 292"/>
+      <path class="edge" d="M 315 338 L 315 370"/>
+      <path class="edge" d="M 125 338 L 125 370"/>
+
+      <!-- Edge: client -> server HTTP -->
+      <path class="edge" d="M 400 401 L 440 401 L 440 123 L 490 123"/>
+      <rect class="elabel-bg" x="406" y="250" width="58" height="30" rx="4"/>
+      <text class="elabel" x="412" y="262">HTTP GET</text>
+      <text class="elabel" x="412" y="275">JSON</text>
+
+      <!-- Edge: dashed missing endpoints -->
+      <path class="edge dash" d="M 400 416 L 455 416 L 455 300 L 464 300"/>
+      <rect class="elabel-bg" x="406" y="296" width="60" height="30" rx="4"/>
+      <text class="elabel" x="408" y="308">/api/tasks</text>
+      <text class="elabel" x="408" y="321">/purchase-orders</text>
+
+      <!-- Edges: server internal -->
+      <path class="edge" d="M 620 182 L 620 210"/>
+      <path class="edge" d="M 910 182 L 910 210"/>
+      <path class="edge" d="M 620 302 L 620 334"/>
+      <path class="edge" d="M 765 396 L 765 428"/>
+    </svg>
+    <div class="caption">Клиент и сервер запускаются как два отдельных процесса. Браузер обращается к API напрямую по абсолютному URL, прокси в Vite не настроен, поэтому на сервере включён CORS.</div>
+  </div>
+</section>
+
+<!-- ===================== STACK ===================== -->
+<section id="stack">
+  <h2>Технологический стек</h2>
+  <p class="lead">Минимальный набор зависимостей: по три runtime-пакета на каждой стороне.</p>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <span class="tag blue">Frontend</span>
+      <table style="margin-top:12px; border:none">
+        <tr><td><code>vue</code> ^3.4</td><td>UI-фреймворк, Composition API внутри <code>setup()</code></td></tr>
+        <tr><td><code>vue-router</code> ^4.3</td><td>Клиентская маршрутизация, history mode</td></tr>
+        <tr><td><code>axios</code> ^1.6</td><td>HTTP-клиент для вызовов API</td></tr>
+        <tr><td><code>vite</code> ^8 + <code>@vitejs/plugin-vue</code></td><td>Dev-сервер и сборка, порт 3000</td></tr>
+        <tr><td><code>bun</code></td><td>Установка зависимостей и запуск скриптов (<code>bun.lock</code>)</td></tr>
+        <tr><td>Node ^20.19 или ≥22.12</td><td>Требование из <code>package.json</code></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <span class="tag green">Backend</span>
+      <table style="margin-top:12px; border:none">
+        <tr><td><code>fastapi</code> ≥0.110</td><td>Web-фреймворк, автодокументация на <code>/docs</code></td></tr>
+        <tr><td><code>uvicorn</code> ≥0.24</td><td>ASGI-сервер, слушает 0.0.0.0:8001</td></tr>
+        <tr><td><code>pydantic</code> ≥2.5</td><td>Модели данных и валидация</td></tr>
+        <tr><td><code>uv</code></td><td>Менеджер окружения и зависимостей (<code>uv.lock</code>)</td></tr>
+        <tr><td>Python ≥3.11</td><td>Требование из <code>pyproject.toml</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:16px">
+    <div class="card">
+      <span class="tag slate">Тестирование</span>
+      <ul style="margin-top:10px">
+        <li><code>pytest</code>, <code>pytest-asyncio</code>, <code>pytest-cov</code>, <code>httpx</code></li>
+        <li>Только бэкенд: <code>tests/backend/</code> через FastAPI <code>TestClient</code></li>
+        <li>Файлы: test_dashboard, test_inventory, test_misc_endpoints</li>
+        <li>Фронтенд-тестов нет</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag slate">Инструменты</span>
+      <ul style="margin-top:10px">
+        <li><code>scripts/start.sh</code> и <code>stop.sh</code>: запуск и остановка обоих процессов, логи в <code>/tmp</code></li>
+        <li><code>server/generate_data.py</code>: генерация демо-данных</li>
+        <li>Дизайн-система: slate-палитра (#0f172a, #64748b, #e2e8f0), статусы green/blue/yellow/red</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== DATA FLOW ===================== -->
+<section id="dataflow">
+  <h2>Потоки данных</h2>
+  <p class="lead">Три сценария, которые покрывают почти всю логику приложения.</p>
+
+  <h3>1. Старт сервера: загрузка данных в память</h3>
+  <div class="card">
+    <div class="step"><div class="n be">1</div><div><p><b>uvicorn</b> запускает <code>main.py</code>, который импортирует <code>mock_data</code>.</p><div class="where">server/main.py:5</div></div></div>
+    <div class="step"><div class="n be">2</div><div><p><code>mock_data.py</code> при импорте вызывает <code>load_json_file()</code> для каждого из 7 файлов и кладёт результат в модульные переменные: <code>inventory_items</code>, <code>orders</code>, <code>demand_forecasts</code>, <code>backlog_items</code>, <code>spending_*</code>, <code>recent_transactions</code>, <code>purchase_orders</code>.</p><div class="where">server/mock_data.py</div></div></div>
+    <div class="step"><div class="n be">3</div><div><p>Данные живут как обычные списки словарей до остановки процесса. Эндпоинты никогда не мутируют их, а фильтруют через list comprehension в новые списки.</p><div class="where">server/main.py · apply_filters, filter_by_month</div></div></div>
+  </div>
+
+  <h3>2. Основной сценарий: изменение фильтра на Dashboard</h3>
+  <div class="card">
+    <div class="step"><div class="n fe">1</div><div><p>Пользователь меняет Time Period / Warehouse / Category / Order Status в <b>FilterBar</b>.</p><div class="where">client/src/components/FilterBar.vue</div></div></div>
+    <div class="step"><div class="n fe">2</div><div><p>FilterBar пишет в общие <code>ref</code>-ы composable <b>useFilters</b>. Это singleton: рефы объявлены на уровне модуля, поэтому все экраны видят одно и то же состояние фильтров.</p><div class="where">client/src/composables/useFilters.js</div></div></div>
+    <div class="step"><div class="n fe">3</div><div><p>В <b>Dashboard.vue</b> стоит <code>watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus])</code>, который перезапускает загрузку. Параллельно через <code>Promise.all</code> уходят 4 запроса: summary, orders, inventory, backlog.</p><div class="where">client/src/views/Dashboard.vue:567-570, 676</div></div></div>
+    <div class="step"><div class="n fe">4</div><div><p><b>api.js</b> собирает <code>URLSearchParams</code>, пропуская значения <code>'all'</code>, и вызывает axios. Период маппится в параметр <code>month</code>: либо <code>2025-03</code>, либо квартал <code>Q1-2025</code>.</p><div class="where">client/src/api.js</div></div></div>
+    <div class="step"><div class="n be">5</div><div><p>FastAPI принимает query-параметры как <code>Optional[str]</code>. <code>apply_filters</code> последовательно отсекает по warehouse, category (регистронезависимо) и status; <code>filter_by_month</code> ищет подстроку месяца в <code>order_date</code>, для кварталов разворачивает <code>QUARTER_MAP</code> в три месяца.</p><div class="where">server/main.py:17-47</div></div></div>
+    <div class="step"><div class="n be">6</div><div><p>Для <code>/api/dashboard/summary</code> сервер сам считает агрегаты: стоимость запасов, число позиций ниже reorder point, pending-заказы, сумму заказов. Для списков ответ валидируется Pydantic через <code>response_model</code>.</p><div class="where">server/main.py:182-208</div></div></div>
+    <div class="step"><div class="n fe">7</div><div><p>Сырые ответы попадают в <code>ref</code>-ы (<code>allOrders</code>, <code>inventoryItems</code>, …). Вся производная аналитика для графиков (<code>statusData</code>, <code>categoryData</code>, <code>orderTrendData</code>, <code>topProducts</code>) считается в <code>computed</code> на клиенте и автоматически перерисовывает SVG.</p><div class="where">client/src/views/Dashboard.vue:343-589</div></div></div>
+  </div>
+
+  <div class="callout">
+    <b>Особенность фильтра по времени.</b> Инвентарь не имеет временного измерения, поэтому <code>/api/inventory</code> игнорирует <code>month</code>, а <code>/api/demand</code>, <code>/api/backlog</code> и <code>/api/spending/*</code> не принимают фильтры вовсе. Фильтр-бар при этом виден на всех экранах.
+  </div>
+
+  <h3>3. Локализация и валюта</h3>
+  <div class="card">
+    <div class="step"><div class="n fe">1</div><div><p><b>LanguageSwitcher</b> меняет <code>currentLocale</code> в <b>useI18n</b> (singleton, значение сохраняется в <code>localStorage</code> под ключом <code>app-locale</code>).</p><div class="where">client/src/composables/useI18n.js</div></div></div>
+    <div class="step"><div class="n fe">2</div><div><p>Функция <code>t('nav.overview')</code> ищет ключ в <code>locales/ja.js</code>, при промахе откатывается на <code>en.js</code>. Валюта выводится из локали: <code>ja</code> даёт JPY, иначе USD. Это чисто клиентский поток, сервер о языке не знает.</p><div class="where">client/src/locales/, client/src/utils/currency.js</div></div></div>
+    <div class="step"><div class="n fe">3</div><div><p><b>useAuth</b> не ходит на сервер: пользователь и его задачи захардкожены и переключаются между английским и японским вариантом по той же локали.</p><div class="where">client/src/composables/useAuth.js</div></div></div>
+  </div>
+</section>
+
+<!-- ===================== API ===================== -->
+<section id="api">
+  <h2>API и маршруты</h2>
+  <p class="lead">Маршруты клиента и эндпоинты сервера. Фильтры: W = warehouse, C = category, S = status, M = month.</p>
+
+  <div class="grid grid-2">
+    <div>
+      <h3 style="margin-top:0">Маршруты Vue Router</h3>
+      <table>
+        <tr><th>Путь</th><th>View</th><th>Данные</th></tr>
+        <tr><td><code>/</code></td><td>Dashboard.vue</td><td>summary, orders, inventory, backlog</td></tr>
+        <tr><td><code>/inventory</code></td><td>Inventory.vue</td><td>inventory</td></tr>
+        <tr><td><code>/orders</code></td><td>Orders.vue</td><td>orders</td></tr>
+        <tr><td><code>/spending</code></td><td>Spending.vue</td><td>spending/*</td></tr>
+        <tr><td><code>/demand</code></td><td>Demand.vue</td><td>demand</td></tr>
+        <tr><td><code>/restocking</code></td><td>Restocking.vue</td><td>restocking/recommendations, POST restocking/orders</td></tr>
+        <tr><td><code>/reports</code></td><td>Reports.vue</td><td>reports/*</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Эндпоинты FastAPI</h3>
+      <table>
+        <tr><th>Эндпоинт</th><th>Фильтры</th><th>Ответ</th></tr>
+        <tr><td><code>GET /api/inventory</code></td><td>W, C</td><td>List[InventoryItem]</td></tr>
+        <tr><td><code>GET /api/inventory/{id}</code></td><td>—</td><td>InventoryItem · 404</td></tr>
+        <tr><td><code>GET /api/orders</code></td><td>W, C, S, M</td><td>List[Order]</td></tr>
+        <tr><td><code>GET /api/orders/{id}</code></td><td>—</td><td>Order · 404</td></tr>
+        <tr><td><code>GET /api/dashboard/summary</code></td><td>W, C, S, M</td><td>агрегаты (dict)</td></tr>
+        <tr><td><code>GET /api/demand</code></td><td>—</td><td>List[DemandForecast]</td></tr>
+        <tr><td><code>GET /api/backlog</code></td><td>—</td><td>List[BacklogItem] + has_purchase_order</td></tr>
+        <tr><td><code>GET /api/spending/summary</code><br><code>/monthly</code> · <code>/categories</code> · <code>/transactions</code></td><td>—</td><td>dict / list</td></tr>
+        <tr><td><code>GET /api/reports/quarterly</code><br><code>/monthly-trends</code></td><td>—</td><td>агрегаты по orders</td></tr>
+        <tr><td><code>GET /api/restocking/recommendations</code></td><td>budget, W, C</td><td>рекомендации в рамках бюджета</td></tr>
+        <tr><td><code>GET / POST /api/restocking/orders</code></td><td>—</td><td>List[RestockingOrder] · запись в JSON</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== STRUCTURE ===================== -->
+<section id="structure">
+  <h2>Структура проекта</h2>
+  <p class="lead">Ключевые файлы, с которых стоит начинать чтение.</p>
+<div class="tree">inventory-management/
+├── client/                         <span class="c"># Vue 3 SPA</span>
+│   ├── index.html · vite.config.js <span class="c"># порт 3000</span>
+│   └── src/
+│       ├── main.js                 <span class="c"># createApp + router (7 маршрутов)</span>
+│       ├── App.vue                 <span class="c"># каркас, навигация, глобальные стили</span>
+│       ├── api.js                  <span class="c"># все вызовы к бэкенду (axios)</span>
+│       ├── views/                  <span class="c"># Dashboard, Inventory, Orders, Spending, Demand, Reports, Backlog</span>
+│       ├── components/             <span class="c"># FilterBar, модальные окна, ProfileMenu, LanguageSwitcher</span>
+│       ├── composables/            <span class="c"># useFilters, useI18n, useAuth</span>
+│       ├── locales/                <span class="c"># en.js, ja.js</span>
+│       └── utils/currency.js
+├── server/                         <span class="c"># FastAPI</span>
+│   ├── main.py                     <span class="c"># модели + эндпоинты + фильтры</span>
+│   ├── mock_data.py                <span class="c"># загрузка JSON в память</span>
+│   ├── generate_data.py            <span class="c"># генератор демо-данных</span>
+│   ├── data/*.json                 <span class="c"># 7 файлов с данными</span>
+│   └── pyproject.toml · uv.lock
+├── tests/backend/                  <span class="c"># pytest + TestClient</span>
+├── scripts/start.sh · stop.sh
+├── docs/
+└── CLAUDE.md · README.md</div>
+</section>
+
+<!-- ===================== NOTES ===================== -->
+<section id="notes">
+  <h2>Замечания по коду</h2>
+  <p class="lead">Расхождения, которые видны при сопоставлении клиента и сервера.</p>
+
+  <div class="callout red">
+    <b>Клиент вызывает несуществующие эндпоинты.</b> В <code>api.js</code> есть методы <code>getTasks</code>, <code>createTask</code>, <code>deleteTask</code>, <code>toggleTask</code> (<code>/api/tasks</code>), а также <code>createPurchaseOrder</code> и <code>getPurchaseOrderByBacklogItem</code> (<code>/api/purchase-orders</code>). В <code>main.py</code> этих маршрутов нет. <code>App.vue</code> вызывает <code>api.getTasks()</code> при монтировании, получает 404 и глушит ошибку в <code>console.error</code>. Задачи в модальном окне берутся только из мок-данных <code>useAuth</code>.
+  </div>
+  <div class="callout">
+    <b>Backlog.vue не подключён к роутеру.</b> Файл существует в <code>views/</code>, но маршрута для него в <code>main.js</code> нет. Бэклог показывается внутри Dashboard.
+  </div>
+  <div class="callout">
+    <b>purchase_orders.json пустой</b> (3 байта: <code>[]</code>), поэтому флаг <code>has_purchase_order</code> у всех позиций бэклога всегда <code>false</code>.
+  </div>
+  <div class="callout">
+    <b>Безопасность только для локальной разработки.</b> Нет аутентификации, CORS открыт для всех источников, URL API захардкожен в <code>api.js</code>.
+  </div>
+</section>
+
+<!-- ===================== RUN ===================== -->
+<section id="run">
+  <h2>Запуск</h2>
+  <p class="lead">Одной командой или по отдельности.</p>
+<pre><code># Всё сразу (из корня проекта)
+./scripts/start.sh          # остановить: ./scripts/stop.sh
+
+# Бэкенд
+cd server && uv venv && uv sync && uv run python main.py     # http://localhost:8001/docs
+
+# Фронтенд
+cd client && bun install && bun run dev                        # http://localhost:3000
+
+# Тесты
+cd tests && uv run pytest backend/ -v</code></pre>
+</section>
+
+<footer>
+  Страница сгенерирована по состоянию кода на 12 ноября 2026. Источники: CLAUDE.md, README.md, server/main.py, server/mock_data.py, client/src/*.
+</footer>
+
+</div>
+</body>
+</html>

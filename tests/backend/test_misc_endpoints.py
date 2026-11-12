@@ -65,23 +65,25 @@ class TestDemandEndpoints:
                 assert percent_change < 2.0, \
                     f"Item {item['item_name']} has {percent_change:.2f}% change, expected < 2%"
 
-    def test_demand_forecast_has_new_items(self, client):
-        """Test that new demand forecast items exist."""
-        response = client.get("/api/demand")
-        data = response.json()
+    def test_demand_forecast_covers_inventory_skus(self, client):
+        """Test that demand forecasts reference real inventory SKUs."""
+        forecasts = client.get("/api/demand").json()
+        inventory_skus = {item["sku"] for item in client.get("/api/inventory").json()}
 
-        # Check for the new items we added
-        skus = [item["item_sku"] for item in data]
+        skus = [item["item_sku"] for item in forecasts]
+        assert "PSU-501" in skus, "Missing 5V 10A Switching Power Supply"
+        assert "HMD-202" in skus, "Missing Humidity Sensor Module"
 
-        # Should have Temperature Sensor Module and Logic Controller Board
-        assert "SNR-420" in skus, "Missing Temperature Sensor Module"
-        assert "CTL-330" in skus, "Missing Logic Controller Board"
+        # Every forecast must map onto an inventory item so restocking can price it
+        for item in forecasts:
+            assert item["item_sku"] in inventory_skus, \
+                f"Forecast SKU {item['item_sku']} does not exist in inventory"
 
-        # Verify they are marked as stable
-        for item in data:
-            if item["item_sku"] in ["SNR-420", "CTL-330"]:
+        # Verify the two reference items are marked as stable
+        for item in forecasts:
+            if item["item_sku"] in ["PSU-501", "HMD-202"]:
                 assert item["trend"].lower() == "stable", \
-                    f"New item {item['item_name']} should have stable trend"
+                    f"Item {item['item_name']} should have stable trend"
 
 
 class TestBacklogEndpoints:

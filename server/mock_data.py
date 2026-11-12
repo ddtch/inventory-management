@@ -35,5 +35,24 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restocking orders are the only dataset written at runtime. The file may be
+# missing on a fresh checkout, so fall back to an empty list instead of failing.
+RESTOCKING_ORDERS_FILE = os.path.join(DATA_DIR, 'restocking_orders.json')
+restocking_orders = load_json_file('restocking_orders.json') if os.path.exists(RESTOCKING_ORDERS_FILE) else []
+
+
+def save_restocking_orders():
+    """Persist the in-memory restocking orders list to disk."""
+    # Look the path up at call time (not import time) so tests can monkeypatch
+    # RESTOCKING_ORDERS_FILE and never touch the real data file.
+    target = RESTOCKING_ORDERS_FILE
+    tmp_path = target + '.tmp'
+    # Atomic write: dump to a temp file then os.replace, so a crash mid-write
+    # never leaves a truncated JSON file that would break the next startup.
+    with open(tmp_path, 'w') as f:
+        json.dump(restocking_orders, f, indent=2)
+        f.write('\n')
+    os.replace(tmp_path, target)
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
